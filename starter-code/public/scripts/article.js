@@ -80,7 +80,6 @@
       return names;
     }, []);
   };
-
   // DONE: Transform each author string into an object with properties for
   // the author's name, as well as the total number of words across all articles
   // written by the specified author.

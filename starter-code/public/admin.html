@@ -13,7 +13,7 @@
     <!-- DONE: Setup a template for each row of the Author Stats section of this page: -->
     <script id="admin-template" type="text/x-handlebars-template">
         <li>{{name}}</li>
-        <li>: {{numWords}} words written</li>
+        <li>{{numWords}} words written</li>
       </script>
   </head>
   <body>
@@ -51,10 +51,11 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="/vendor/scripts/handlebars.js"></script>
+    <script src="vendor/scripts/marked.js"></script>
     <script src="/scripts/article.js"></script>
     <script src="/scripts/articleView.js"></script>
     <script>
-    Article.fetchAll(articleView.initIndexPage);
+    Article.fetchAll(articleView.initAdminPage);
       // DONE: After we fetch and load all the articles, what view function do we want to run next?
       // Let's pass in a callback function, to determine what happens AFTER all articles are loaded.
 
