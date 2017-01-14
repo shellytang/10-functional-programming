@@ -5,25 +5,25 @@
 // DONE: Wrap the entire contents of this file in an IIFE.
 // Pass in to the IIFE a module, upon which objects can be attached for later access.
 (function(module){
-function Article(opts) {
+  function Article(opts) {
   // REVIEW: Lets review what's actually happening here, and check out some new syntax!!
-  Object.keys(opts).forEach(e => this[e] = opts[e]);
-}
+    Object.keys(opts).forEach(e => this[e] = opts[e]);
+  }
 
-Article.all = [];
+  Article.all = [];
 
-Article.prototype.toHtml = function() {
-  var template = Handlebars.compile($('#article-template').text());
+  Article.prototype.toHtml = function() {
+    var template = Handlebars.compile($('#article-template').text());
 
-  this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
-  this.publishStatus = this.publishedOn ? `published ${this.daysAgo} days ago` : '(draft)';
-  this.body = marked(this.body);
+    this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
+    this.publishStatus = this.publishedOn ? `published ${this.daysAgo} days ago` : '(draft)';
+    this.body = marked(this.body);
 
-  return template(this);
-};
+    return template(this);
+  };
 
-Article.loadAll = rows => {
-  rows.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)));
+  Article.loadAll = rows => {
+    rows.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)));
 
   // DONE: Refactor this forEach code, by using a `.map` call instead, since want we are trying to accomplish
   // is the transformation of one colleciton into another.
@@ -33,14 +33,14 @@ Article.loadAll = rows => {
     Article.all.push(new Article(ele));
   });
   */
-  Article.all = rawData.map(function(ele){
-    return new Article(ele);
-  });
+    Article.all = rows.map(ele => {
+      return new Article(ele);
+    });
 
-};
+  };
 
-Article.fetchAll = callback => {
-  $.get('/articles/all')
+  Article.fetchAll = callback => {
+    $.get('/articles/all')
   .then(
     results => {
       if (results.rows.length) {
@@ -59,91 +59,87 @@ Article.fetchAll = callback => {
       }
     }
   )
-};
+  };
 
 // DONE: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
-Article.numWordsAll = function () => {
-  return Article.all.map(function(articles){
-    return article.body.split(' ').length;
-  }).reduce(function(a,b){
-    return (a + b);
-  });
-};
+  Article.numWordsAll = () => {
+    return Article.all.map(article => {
+      return article.body.split(' ').length}).reduce((a,b) => {
+        return (a + b);
+      }, 0);
+  };
 
 // DONE: Chain together a `map` and a `reduce` call to produce an array of unique author names.
-Article.allAuthors = () => {
-  return Article.all.map(function(articles){
-    return article.author;
-  }).reduce(function(accumlator,current){
-    if (!accumlator.includes(current)) {
-      accumlator.push(current);
-    }
-    return accumlator;
-  }, []);
-};
+  Article.allAuthors = () => {
+    return Article.all.map(article => {
+      return article.author})
+    .reduce((names, name) => {
+      if (names.indexOf(name) === -1) {
+        names.push(name);
+      }
+      return names;
+    }, []);
+  };
 
-Article.numWordsByAuthor = () => {
-  return Article.allAuthors().map(function(author) => {
-    // DONE: Transform each author string into an object with properties for
-    // the author's name, as well as the total number of words across all articles
-    // written by the specified author.
+  // DONE: Transform each author string into an object with properties for
+  // the author's name, as well as the total number of words across all articles
+  // written by the specified author.
 
-    return {
-      name: author, // DONE: Complete the value for this object property
-      numWords: Article.all.filter(
-        function(article){
-          return article.author ==== author;
-        }).map(function(articles){
-          return article.body.split(' ').length;
-        }).reduce(function(a,b){
-          return (a + b);
-        });
+
+  Article.numWordsByAuthor = () => {
+    return Article.allAuthors().map(author => {
+      return {
+        name: author, // DONE: Complete the value for this object property
+        numWords: Article.all.filter(ele =>
+         {return ele.author === author}).map(ele =>
+         {return ele.body.split(' ').length;}).reduce((a,b) =>
+         {return a + b;}, 0)
         // DONE: Complete these three FP methods.
-    }
-  })
-};
+      }
+    })
+  };
 
-Article.truncateTable = callback => {
-  $.ajax({
-    url: '/articles/truncate',
-    method: 'DELETE',
-  })
+  Article.truncateTable = callback => {
+    $.ajax({
+      url: '/articles/truncate',
+      method: 'DELETE',
+    })
   .then(console.log) // REVIEW: Check out this clean syntax for just passing 'assumend' data into a named function!
   .then(callback);
-};
+  };
 
-Article.prototype.insertRecord = function(callback) {
+  Article.prototype.insertRecord = function(callback) {
   // REVIEW: Why can't we use an arrow function here for .insertRecord()??
-  $.post('/articles/insert', {author: this.author, authorUrl: this.authorUrl, body: this.body, category: this.category, publishedOn: this.publishedOn, title: this.title})
+    $.post('/articles/insert', {author: this.author, authorUrl: this.authorUrl, body: this.body, category: this.category, publishedOn: this.publishedOn, title: this.title})
   .then(console.log)
   .then(callback);
-};
+  };
 
-Article.prototype.deleteRecord = function(callback) {
-  $.ajax({
-    url: '/articles/delete',
-    method: 'DELETE',
-    data: {id: this.article_id}
-  })
+  Article.prototype.deleteRecord = function(callback) {
+    $.ajax({
+      url: '/articles/delete',
+      method: 'DELETE',
+      data: {id: this.article_id}
+    })
   .then(console.log)
   .then(callback);
-};
+  };
 
-Article.prototype.updateRecord = function(callback) {
-  $.ajax({
-    url: '/articles/delete',
-    method: 'DELETE',
-    data: {
-      author: this.author,
-      authorUrl: this.authorUrl,
-      body: this.body,
-      category: this.category,
-      publishedOn: this.publishedOn,
-      title: this.title,
-      id: this.article_id}
+  Article.prototype.updateRecord = function(callback) {
+    $.ajax({
+      url: '/articles/delete',
+      method: 'DELETE',
+      data: {
+        author: this.author,
+        authorUrl: this.authorUrl,
+        body: this.body,
+        category: this.category,
+        publishedOn: this.publishedOn,
+        title: this.title,
+        id: this.article_id}
     })
     .then(console.log)
     .then(callback);
   };
-module.Article = Article;
+  module.Article = Article;
 }(window));
