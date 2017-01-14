@@ -24,7 +24,6 @@
 
   Article.loadAll = rows => {
     rows.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)));
-
   // DONE: Refactor this forEach code, by using a `.map` call instead, since want we are trying to accomplish
   // is the transformation of one colleciton into another.
 
@@ -36,7 +35,6 @@
     Article.all = rows.map(ele => {
       return new Article(ele);
     });
-
   };
 
   Article.fetchAll = callback => {
@@ -52,13 +50,13 @@
           rawData.forEach(item => {
             let article = new Article(item);
             article.insertRecord();
+            })
           })
-        })
-        .then(() => Article.fetchAll(callback))
-        .catch(console.error);
+          .then(() => Article.fetchAll(callback))
+          .catch(console.error);
+        }
       }
-    }
-  )
+    )
   };
 
 // DONE: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
